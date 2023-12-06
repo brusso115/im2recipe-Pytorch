@@ -5,7 +5,7 @@ import utils
 import torchfile
 import pickle
 import sys
-sys.path.append("..")
+sys.path.append("/home/tdipentima27/Project_Dir/im2recipe-Pytorch")
 from args import get_parser
 
 # =============================================================================

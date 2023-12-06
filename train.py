@@ -88,7 +88,7 @@ def main():
     train_loader = torch.utils.data.DataLoader(
         ImagerLoader(opts.img_path,
             transforms.Compose([
-            transforms.Scale(256), # rescale the image keeping the original aspect ratio
+            transforms.Resize(256), # rescale the image keeping the original aspect ratio
             transforms.CenterCrop(256), # we get only the center of that rescaled
             transforms.RandomCrop(224), # random crop within the center crop 
             transforms.RandomHorizontalFlip(),
@@ -103,7 +103,7 @@ def main():
     val_loader = torch.utils.data.DataLoader(
         ImagerLoader(opts.img_path,
             transforms.Compose([
-            transforms.Scale(256), # rescale the image keeping the original aspect ratio
+            transforms.Resize(256), # rescale the image keeping the original aspect ratio
             transforms.CenterCrop(224), # we get only the center of that rescaled
             transforms.ToTensor(),
             normalize,
@@ -209,8 +209,21 @@ def train(train_loader, model, criterion, optimizer, epoch):
         # measure elapsed time
         batch_time.update(time.time() - end)
         end = time.time()
+        print(i)
+        if i == opts.batch_num:
+            break
 
     if opts.semantic_reg:
+        #with open('one_percent_output','a') as f:
+        #    f.write('\nEpoch: {0}\t'
+        #          'cos loss {cos_loss.val:.4f} ({cos_loss.avg:.4f})\t'
+        #          'img Loss {img_loss.val:.4f} ({img_loss.avg:.4f})\t'
+        #          'rec loss {rec_loss.val:.4f} ({rec_loss.avg:.4f})\t'
+        #          'vision ({visionLR}) - recipe ({recipeLR})\t'.format(
+        #           epoch, cos_loss=cos_losses, img_loss=img_losses,
+        #           rec_loss=rec_losses, visionLR=optimizer.param_groups[1]['lr'],
+        #           recipeLR=optimizer.param_groups[0]['lr']))
+        
         print('Epoch: {0}\t'
                   'cos loss {cos_loss.val:.4f} ({cos_loss.avg:.4f})\t'
                   'img Loss {img_loss.val:.4f} ({img_loss.avg:.4f})\t'
@@ -220,7 +233,13 @@ def train(train_loader, model, criterion, optimizer, epoch):
                    rec_loss=rec_losses, visionLR=optimizer.param_groups[1]['lr'],
                    recipeLR=optimizer.param_groups[0]['lr']))
     else:
-         print('Epoch: {0}\t'
+        #with open('one_percent_output','a') as f:
+         #   f.write('\nEpoch: {0}\t'
+          #        'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
+          #        'vision ({visionLR}) - recipe ({recipeLR})\t'.format(
+          #         epoch, loss=cos_losses, visionLR=optimizer.param_groups[1]['lr'],
+          #         recipeLR=optimizer.param_groups[0]['lr']))
+        print('Epoch: {0}\t'
                   'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
                   'vision ({visionLR}) - recipe ({recipeLR})\t'.format(
                    epoch, loss=cos_losses, visionLR=optimizer.param_groups[1]['lr'],
@@ -260,8 +279,12 @@ def validate(val_loader, model, criterion):
             data1 = np.concatenate((data1,output[1].data.cpu().numpy()),axis=0)
             data2 = np.concatenate((data2,target[-2]),axis=0)
             data3 = np.concatenate((data3,target[-1]),axis=0)
-
+        if i == opts.batch_num:
+            break
     medR, recall = rank(opts, data0, data1, data2)
+   # with open('one_percent_output','a') as f:
+    #    f.write('\n* Val medR {medR:.4f}\t'
+     #     'Recall {recall}'.format(medR=medR, recall=recall))
     print('* Val medR {medR:.4f}\t'
           'Recall {recall}'.format(medR=medR, recall=recall))
 
