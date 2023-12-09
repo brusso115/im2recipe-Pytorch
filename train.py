@@ -239,7 +239,7 @@ def train(train_loader, model, criterion, optimizer, epoch, pbar):
         end = time.time()
 
         pbar.update(1)
-        pbar.set_description(f'Epoch: {epoch} | Batch: {i}')
+        pbar.set_description(f'Epoch: {epoch} | Batch: {i}/{opts.batch_num}')
 
         if i == opts.batch_num:
             break
