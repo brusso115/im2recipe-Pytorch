@@ -1,0 +1,24 @@
+
+Epoch: 0	cos loss 0.1200 (0.1835)	img Loss 6.6074 (6.8049)	rec loss 6.8840 (6.8299)	vision (0.0) - recipe (0.0001)	
+
+Epoch: 1	cos loss 0.1190 (0.1866)	img Loss 6.6530 (6.6550)	rec loss 6.4715 (6.6773)	vision (0.0) - recipe (0.0001)	
+* Val medR 264.8500	Recall {1: 0.0028, 5: 0.017499999999999998, 10: 0.03370000000000001}
+Epoch: 2	cos loss 0.2331 (0.1973)	img Loss 6.4109 (6.5555)	rec loss 6.3251 (6.5940)	vision (0.0) - recipe (0.0001)	
+* Val medR 261.0000	Recall {1: 0.004, 5: 0.018299999999999997, 10: 0.032600000000000004}
+Epoch: 3	cos loss 0.2251 (0.1753)	img Loss 6.7242 (6.5338)	rec loss 6.2086 (6.5375)	vision (0.0) - recipe (0.0001)	
+* Val medR 246.3000	Recall {1: 0.004500000000000001, 5: 0.0177, 10: 0.0336}
+Epoch: 4	cos loss 0.1142 (0.1853)	img Loss 6.2491 (6.4471)	rec loss 6.4908 (6.4601)	vision (0.0) - recipe (0.0001)	
+* Val medR 216.4000	Recall {1: 0.004, 5: 0.0175, 10: 0.034800000000000005}
+
+Epoch: 5	cos loss 0.0026 (0.1717)	img Loss 5.9895 (6.4011)	rec loss 6.8648 (6.4119)	vision (0.0) - recipe (0.0001)	
+* Val medR 199.9000	Recall {1: 0.0054, 5: 0.024099999999999993, 10: 0.04429999999999999}
+
+Epoch: 6	cos loss 0.1237 (0.1832)	img Loss 6.5844 (6.3888)	rec loss 6.5679 (6.3805)	vision (0.0) - recipe (0.0001)	
+* Val medR 214.6000	Recall {1: 0.004200000000000001, 5: 0.02, 10: 0.0365}
+Epoch: 7	cos loss 0.4634 (0.1845)	img Loss 5.9812 (6.3713)	rec loss 5.5957 (6.3394)	vision (0.0001) - recipe (0.0)	
+* Val medR 260.1500	Recall {1: 0.004300000000000001, 5: 0.0178, 10: 0.03579999999999999}
+Epoch: 8	cos loss 0.2307 (0.1761)	img Loss 6.2373 (6.3997)	rec loss 7.0379 (6.3449)	vision (0.0001) - recipe (0.0)	
+* Val medR 260.8000	Recall {1: 0.0039, 5: 0.0182, 10: 0.035100000000000006}
+
+Epoch: 9	cos loss 0.3391 (0.1817)	img Loss 6.3131 (6.4207)	rec loss 5.8581 (6.3422)	vision (0.0001) - recipe (0.0)	
+* Val medR 255.5500	Recall {1: 0.0039000000000000007, 5: 0.0191, 10: 0.0364}

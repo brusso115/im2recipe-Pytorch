@@ -113,6 +113,7 @@ def main():
     print('Validation loader prepared.')
 
     # run epochs
+    torch.autograd.set_detect_anomaly(True)
     for epoch in range(opts.start_epoch, opts.epochs):
 
         # train for one epoch
@@ -180,22 +181,34 @@ def train(train_loader, model, criterion, optimizer, epoch):
             target_var.append(target[j].to(device))
 
         # compute output
-        output = model(input_var[0], input_var[1], input_var[2], input_var[3], input_var[4])
+        output = model(input_var[0], input_var[1], input_var[2])
 
         # compute loss
         if opts.semantic_reg:
             cos_loss = criterion[0](output[0], output[1], target_var[0].float())
             img_loss = criterion[1](output[2], target_var[1])
             rec_loss = criterion[1](output[3], target_var[2])
+
+            '''
+            eps = torch.Tensor([1e-6]).to(device)
+            if rec_loss.isnan():
+                rec_loss = eps
+                rec_loss = torch.squeeze(rec_loss)
+                print(rec_loss, cos_loss)
+                print('recipe loss was nan')
+            '''
+
             # combined loss
             loss =  opts.cos_weight * cos_loss +\
                     opts.cls_weight * img_loss +\
-                    opts.cls_weight * rec_loss 
+                    opts.cls_weight * rec_loss
 
-            # measure performance and record losses
-            cos_losses.update(cos_loss.data, input[0].size(0))
-            img_losses.update(img_loss.data, input[0].size(0))
-            rec_losses.update(rec_loss.data, input[0].size(0))
+            if not loss.isnan():
+                # measure performance and record losses
+                cos_losses.update(cos_loss.data, input[0].size(0))
+                img_losses.update(img_loss.data, input[0].size(0))
+                rec_losses.update(rec_loss.data, input[0].size(0))
+                print(cos_loss.data, img_loss, rec_loss.data)
         else:
             loss = criterion(output[0], output[1], target_var[0])
             # measure performance and record loss
@@ -203,9 +216,13 @@ def train(train_loader, model, criterion, optimizer, epoch):
 
         # compute gradient and do Adam step
         optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
 
+        if not loss.isnan():
+            loss.backward()
+            #torch.nn.utils.clip_grad_norm_(model.parameters(), 5)
+            optimizer.step()
+        
+        #print(model.recipe1.weight.grad, model.recipe2.weight.grad)
         # measure elapsed time
         batch_time.update(time.time() - end)
         end = time.time()
@@ -214,15 +231,15 @@ def train(train_loader, model, criterion, optimizer, epoch):
             break
 
     if opts.semantic_reg:
-        #with open('one_percent_output','a') as f:
-        #    f.write('\nEpoch: {0}\t'
-        #          'cos loss {cos_loss.val:.4f} ({cos_loss.avg:.4f})\t'
-        #          'img Loss {img_loss.val:.4f} ({img_loss.avg:.4f})\t'
-        #          'rec loss {rec_loss.val:.4f} ({rec_loss.avg:.4f})\t'
-        #          'vision ({visionLR}) - recipe ({recipeLR})\t'.format(
-        #           epoch, cos_loss=cos_losses, img_loss=img_losses,
-        #           rec_loss=rec_losses, visionLR=optimizer.param_groups[1]['lr'],
-        #           recipeLR=optimizer.param_groups[0]['lr']))
+        with open('one_percent_output','a') as f:
+             f.write('\nEpoch: {0}\t'
+                  'cos loss {cos_loss.val:.4f} ({cos_loss.avg:.4f})\t'
+                  'img Loss {img_loss.val:.4f} ({img_loss.avg:.4f})\t'
+                  'rec loss {rec_loss.val:.4f} ({rec_loss.avg:.4f})\t'
+                  'vision ({visionLR}) - recipe ({recipeLR})\t'.format(
+                   epoch, cos_loss=cos_losses, img_loss=img_losses,
+                   rec_loss=rec_losses, visionLR=optimizer.param_groups[1]['lr'],
+                   recipeLR=optimizer.param_groups[0]['lr']))
         
         print('Epoch: {0}\t'
                   'cos loss {cos_loss.val:.4f} ({cos_loss.avg:.4f})\t'
@@ -233,12 +250,12 @@ def train(train_loader, model, criterion, optimizer, epoch):
                    rec_loss=rec_losses, visionLR=optimizer.param_groups[1]['lr'],
                    recipeLR=optimizer.param_groups[0]['lr']))
     else:
-        #with open('one_percent_output','a') as f:
-         #   f.write('\nEpoch: {0}\t'
-          #        'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-          #        'vision ({visionLR}) - recipe ({recipeLR})\t'.format(
-          #         epoch, loss=cos_losses, visionLR=optimizer.param_groups[1]['lr'],
-          #         recipeLR=optimizer.param_groups[0]['lr']))
+        with open('one_percent_output','a') as f:
+            f.write('\nEpoch: {0}\t'
+                    'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
+                    'vision ({visionLR}) - recipe ({recipeLR})\t'.format(
+                    epoch, loss=cos_losses, visionLR=optimizer.param_groups[1]['lr'],
+                    recipeLR=optimizer.param_groups[0]['lr']))
         print('Epoch: {0}\t'
                   'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
                   'vision ({visionLR}) - recipe ({recipeLR})\t'.format(
@@ -257,6 +274,7 @@ def validate(val_loader, model, criterion):
 
     end = time.time()
     for i, (input, target) in enumerate(val_loader):
+        print(i)
         input_var = list() 
         for j in range(len(input)):
             # input_var.append(torch.autograd.Variable(input[j], volatile=True).cuda())
@@ -267,7 +285,7 @@ def validate(val_loader, model, criterion):
             target_var.append(target[j].to(device))
 
         # compute output
-        output = model(input_var[0],input_var[1], input_var[2], input_var[3], input_var[4])
+        output = model(input_var[0],input_var[1], input_var[2])
         
         if i==0:
             data0 = output[0].data.cpu().numpy()
@@ -282,9 +300,9 @@ def validate(val_loader, model, criterion):
         if i == opts.batch_num:
             break
     medR, recall = rank(opts, data0, data1, data2)
-   # with open('one_percent_output','a') as f:
-    #    f.write('\n* Val medR {medR:.4f}\t'
-     #     'Recall {recall}'.format(medR=medR, recall=recall))
+    with open('one_percent_output','a') as f:
+        f.write('\n* Val medR {medR:.4f}\t' 'Recall {recall}'.format(medR=medR, recall=recall))
+
     print('* Val medR {medR:.4f}\t'
           'Recall {recall}'.format(medR=medR, recall=recall))
 
@@ -308,7 +326,7 @@ def rank(opts, img_embeds, rec_embeds, rec_ids):
     glob_rank = []
     glob_recall = {1:0.0,5:0.0,10:0.0}
     for i in range(10):
-
+        print(len(names), names, N)
         ids = random.sample(range(0,len(names)), N)
         im_sub = im_vecs[ids,:]
         instr_sub = instr_vecs[ids,:]
@@ -400,3 +418,4 @@ def adjust_learning_rate(optimizer, epoch, opts):
 
 if __name__ == '__main__':
     main()
+

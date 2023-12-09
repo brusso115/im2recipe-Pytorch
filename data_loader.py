@@ -28,10 +28,10 @@ class ImagerLoader(data.Dataset):
         else:
             self.partition = partition
 
-        self.env = lmdb.open(os.path.join(data_path, partition + '_lmdb'), max_readers=1, readonly=True, lock=False,
+        self.env = lmdb.open(os.path.join(data_path, partition + '_lmdb_txt_embs'), max_readers=1, readonly=True, lock=False,
                              readahead=False, meminit=False)
 
-        with open(os.path.join(data_path, partition + '_keys.pkl'), 'rb') as f:
+        with open(os.path.join(data_path, partition + '_keys_txt_embs.pkl'), 'rb') as f:
             self.ids = pickle.load(f)
 
         self.square = square
@@ -103,15 +103,15 @@ class ImagerLoader(data.Dataset):
 
         # instructions
         instrs = sample['intrs']
-        itr_ln = len(instrs)
-        t_inst = np.zeros((self.maxInst, np.shape(instrs)[1]), dtype=np.float32)
-        t_inst[:itr_ln][:] = instrs
-        instrs = torch.FloatTensor(t_inst)
+        #itr_ln = len(instrs)
+        #t_inst = np.zeros((self.maxInst, np.shape(instrs)[1]), dtype=np.float32)
+        #t_inst[:itr_ln][:] = instrs
+        instrs = torch.FloatTensor(instrs)
 
         # ingredients
         ingrs = sample['ingrs'].astype(int)
         ingrs = torch.LongTensor(ingrs)
-        igr_ln = max(np.nonzero(sample['ingrs'])[0]) + 1
+        #igr_ln = max(np.nonzero(sample['ingrs'])[0]) + 1
 
         # load image
         img = self.loader(path)
@@ -136,14 +136,15 @@ class ImagerLoader(data.Dataset):
         # output
         if self.partition == 'train':
             if self.semantic_reg:
-                return [img, instrs, itr_ln, ingrs, igr_ln], [target, img_class, rec_class]
+                return [img, instrs, ingrs], [target, img_class, rec_class]
             else:
-                return [img, instrs, itr_ln, ingrs, igr_ln], [target]
+                return [img, instrs, ingrs], [target]
         else:
             if self.semantic_reg:
-                return [img, instrs, itr_ln, ingrs, igr_ln], [target, img_class, rec_class, img_id, rec_id]
+                return [img, instrs, ingrs], [target, img_class, rec_class, img_id, rec_id]
             else:
-                return [img, instrs, itr_ln, ingrs, igr_ln], [target, img_id, rec_id]
+                return [img, instrs, ingrs], [target, img_id, rec_id]
 
     def __len__(self):
         return len(self.ids)
+

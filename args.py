@@ -20,8 +20,10 @@ def get_parser():
     # im2recipe model
     parser.add_argument('--embDim', default=1024, type=int)
     parser.add_argument('--nRNNs', default=1, type=int)
-    parser.add_argument('--srnnDim', default=1024, type=int)
-    parser.add_argument('--irnnDim', default=300, type=int)
+    #parser.add_argument('--srnnDim', default=1024, type=int)
+    parser.add_argument('--instrDim', default=384, type=int)
+    #parser.add_argument('--irnnDim', default=300, type=int)
+    parser.add_argument('--ingrDim', default=384, type=int)
     parser.add_argument('--imfeatDim', default=2048, type=int)
     parser.add_argument('--stDim', default=1024, type=int)
     parser.add_argument('--ingrW2VDim', default=300, type=int)
@@ -64,6 +66,7 @@ def get_parser():
     parser.add_argument('--sthdir', default = '../data/', type=str)
 
     return parser
+
 
 
 

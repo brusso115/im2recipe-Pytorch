@@ -101,7 +101,7 @@ def test(test_loader, model, criterion):
             target_var.append(target[j].to(device))
 
         # compute output
-        output = model(input_var[0],input_var[1], input_var[2], input_var[3], input_var[4])
+        output = model(input_var[0],input_var[1], input_var[2])
    
         # compute loss
         if opts.semantic_reg:
@@ -177,3 +177,4 @@ class AverageMeter(object):
 
 if __name__ == '__main__':
     main()
+
