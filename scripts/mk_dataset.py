@@ -2,9 +2,7 @@
 import random
 import pickle
 import numpy as np
-from proc import *
 from tqdm import *
-import torchfile
 import time
 import utils
 import os
@@ -13,19 +11,20 @@ import time
 import lmdb
 import shutil
 import sys
+import torch
 sys.path.append("..")
-from args import get_parser
-from transformers import DistilBertTokenizer, TFDistilBertModel
+#from args import get_parser
+#from transformers import DistilBertTokenizer, TFDistilBertModel
 
 # Maxim number of images we want to use per recipe
 maxNumImgs = 5
 
 # =============================================================================
-parser = get_parser()
-opts = parser.parse_args()
+#parser = get_parser()
+#opts = parser.parse_args()
 # =============================================================================
 
-DATASET = opts.dataset
+DATASET = '../data/recipe1M'
 
 # don't use this file once dataset is clean
 with open('remove1M.txt','r') as f:
@@ -34,8 +33,10 @@ with open('remove1M.txt','r') as f:
 print('Loading dataset.')
 # print DATASET
 dataset = utils.Layer.merge([utils.Layer.L1, utils.Layer.L2, utils.Layer.INGRS],DATASET)
+#torch.save(dataset, '../data/dataset.pt')
+#dataset = torch.load('../data/dataset.pt')
 
-with open('classes1M.pkl','rb') as f:
+with open('../data/classes1M.pkl','rb') as f:
     class_dict = pickle.load(f)
     id2class = pickle.load(f)
 
@@ -58,9 +59,11 @@ print('Assembling dataset.')
 img_ids = dict()
 keys = {'train' : [], 'val':[], 'test':[]}
 
-tokenizer = DistilBertTokenizer.from_pretrained('distilbert-base-uncased')
-model = TFDistilBertModel.from_pretrained("distilbert-base-uncased")
-MAX_LEN = 512
+with open('../data/instruction_stranf_embeddings.pkl', 'rb') as handle:
+    instr_emb_dict = pickle.load(handle)
+    
+with open('../data/ingredients_stranf_embeddings.pkl', 'rb') as handle:
+    ingr_emb_dict = pickle.load(handle)
 
 for i,entry in tqdm(enumerate(dataset)):
 
@@ -72,53 +75,21 @@ for i,entry in tqdm(enumerate(dataset)):
     ingredients_concat = ' '.join(list(map(lambda x: x['text'], entry['ingredients'])))
     imgs = entry.get('images')
 
-    if ninstrs >= opts.maxlen or ningrs >= opts.maxlen or ningrs == 0 or not imgs or remove_ids.get(entry['id']):
+    if ninstrs >= 20 or ningrs >= 20 or ningrs == 0 or not imgs or remove_ids.get(entry['id']):
         continue
 
-    instructions_enc = tokenizer.encode_plus(
-            text=instructions_concat,  # Preprocess sentence
-            add_special_tokens=True,        # Add `[CLS]` and `[SEP]`
-            max_length=MAX_LEN,                  # Max length to truncate/pad
-            pad_to_max_length=True,         # Pad sentence to max length
-            return_tensors='pt',           # Return PyTorch tensor
-            return_attention_mask=True      # Return attention mask
-            )
-        
-    ingredients_enc = tokenizer.encode_plus(
-        text=ingredients_concat,  # Preprocess sentence
-        add_special_tokens=True,        # Add `[CLS]` and `[SEP]`
-        max_length=MAX_LEN,                  # Max length to truncate/pad
-        pad_to_max_length=True,         # Pad sentence to max length
-        return_tensors='pt',           # Return PyTorch tensor
-        return_attention_mask=True      # Return attention mask
-        )
-
-    instructions_enc_ids = instructions_enc.get('input_ids')
-    instructions_enc_mask = instructions_enc.get('attention_mask')
-
-    ingredients_enc_ids = ingredients_enc.get('input_ids')
-    ingredients_enc_mask = ingredients_enc.get('attention_mask')
-
-    instructions_enc_ids = np.array(instructions_enc_ids)
-    instructions_enc_mask = np.array(instructions_enc_mask)
-    ingredients_enc_ids = np.array(ingredients_enc_ids)
-    ingredients_enc_mask = np.array(ingredients_enc_mask)
-
-    outputs_instructions = model(input_ids=instructions_enc_ids, attention_mask=instructions_enc_mask)
-    outputs_ingredients = model(input_ids=ingredients_enc_ids, attention_mask=ingredients_enc_mask)
-
     partition = entry['partition']
-
-    serialized_sample = pickle.dumps( {'ingrs':outputs_ingredients[0][:, 0, :], 'intrs':outputs_instructions[0][:, 0, :],
-        'classes':class_dict[entry['id']]+1, 'imgs':imgs[:maxNumImgs]} ) 
+    
+    serialized_sample = pickle.dumps( {'ingrs':ingr_emb_dict[entry['id']], 'intrs':instr_emb_dict[entry['id']],
+        'classes':class_dict[entry['id']]+1, 'imgs':imgs[:maxNumImgs]} )
 
     with env[partition].begin(write=True) as txn:
         txn.put('{}'.format(entry['id']).encode('latin1'), serialized_sample)
-    # keys to be saved in a pickle file    
+    # keys to be saved in a pickle file
     keys[partition].append(entry['id'])
 
 for k in keys.keys():
-    with open('../data/{}_keys.pkl'.format(k),'wb') as f:
+    with open('../data/{}_keys_txt_embs.pkl'.format(k),'wb') as f:
         pickle.dump(keys[k],f)
 
 print('Training samples: %d - Validation samples: %d - Testing samples: %d' % (len(keys['train']),len(keys['val']),len(keys['test'])))
