@@ -10,7 +10,7 @@ def get_parser():
     # data
     parser.add_argument('--img_path', default='data/images/')
     parser.add_argument('--data_path', default='data/')
-    parser.add_argument('--workers', default=30, type=int)
+    parser.add_argument('--workers', default=0, type=int)
 
     # model
     parser.add_argument('--batch_size', default=160, type=int)
@@ -47,6 +47,8 @@ def get_parser():
     parser.add_argument('--cos_weight', default=0.98, type=float)
     parser.add_argument('--cls_weight', default=0.01, type=float)
     parser.add_argument('--resume', default='', type=str)
+    parser.add_argument('--learning_curves_dir', default='learning_curves/', type=str)
+    parser.add_argument('--disable_pbar', default=False, type=bool)
 
     # test
     parser.add_argument('--path_results', default='results/', type=str)
