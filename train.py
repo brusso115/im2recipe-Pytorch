@@ -409,9 +409,9 @@ def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
 
     filename = opts.snapshots + 'model_e%03d_v-%.3f.pth.tar' % (state['epoch'],state['best_val']) 
     os.makedirs(os.path.dirname(filename), exist_ok=True)
-    if is_best:
-        print(f"Saving checkpoint to {filename}")
-        torch.save(state, filename)
+    # Save checkpoint regardless of is_best
+    print(f"Saving checkpoint to {filename}")
+    torch.save(state, filename)
 
 class AverageMeter(object):
     """Computes and stores the average and current value"""
