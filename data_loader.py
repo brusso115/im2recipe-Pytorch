@@ -18,7 +18,7 @@ def default_loader(path):
        
 class ImagerLoader(data.Dataset):
     def __init__(self, img_path, transform=None, target_transform=None,
-                 loader=default_loader, square=False, data_path=None, partition=None, sem_reg=None):
+                 loader=default_loader, square=False, data_path=None, partition=None, sem_reg=None, use_10_classes=False):
 
         if data_path == None:
             raise Exception('No data path specified.')
@@ -31,8 +31,40 @@ class ImagerLoader(data.Dataset):
         self.env = lmdb.open(os.path.join(data_path, partition + '_lmdb'), max_readers=1, readonly=True, lock=False,
                              readahead=False, meminit=False)
 
-        with open(os.path.join(data_path, partition + '_keys.pkl'), 'rb') as f:
-            self.ids = pickle.load(f)
+
+        if use_10_classes:
+            with open(f'10_classes_ids/10_classes_balanced_ids_{self.partition}.pkl', 'rb') as f:
+                self.ids = pickle.load(f)
+        else:
+            with open(os.path.join(data_path, partition + '_keys.pkl'), 'rb') as f:
+                self.ids = pickle.load(f)
+
+        # This code creates a new set of ids that only contains 10 balanced classes
+        # new_ids = []
+        # max_count = 500 if self.partition == 'train' else 200
+        # num_classes = 10
+        # class_counts = {i: 0 for i in range(num_classes)}
+        # class_full = [False for _ in range(num_classes)]
+        # from tqdm import tqdm
+        # pbar = tqdm(total=len(self.ids))
+        # for a in self.ids:
+        #     with self.env.begin(write=False) as txn:
+        #         serialized_sample = txn.get(a.encode('latin1'))
+        #     sample = pickle.loads(serialized_sample, encoding='latin1')
+        #     sample_class = sample['classes'] - 1
+        #     if sample_class < num_classes:
+        #         if class_counts[sample_class] < max_count:
+        #             new_ids.append(a)
+        #             class_counts[sample_class] += 1
+        #             if class_counts[sample_class] == max_count:
+        #                 class_full[sample_class - 1] = True
+        #     pbar.update(1)
+        #     pbar.set_description(f'Classes full: {sum(class_full)}')
+        #     if all(class_full):
+        #         break
+
+        # with open(f'10_classes_ids/10_classes_balanced_ids_{self.partition}.pkl', 'wb') as f:
+        #     pickle.dump(new_ids, f)
 
         self.square = square
         self.imgPath = img_path

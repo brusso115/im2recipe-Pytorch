@@ -102,7 +102,7 @@ def main():
             transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
             normalize,
-        ]),data_path=opts.data_path,partition='train',sem_reg=opts.semantic_reg),
+        ]),data_path=opts.data_path,partition='train',sem_reg=opts.semantic_reg, use_10_classes=(opts.numClasses == 10)),
         batch_size=opts.batch_size, shuffle=True,
         num_workers=opts.workers, pin_memory=True)
     print('Training loader prepared.')
@@ -123,7 +123,7 @@ def main():
             transforms.CenterCrop(224), # we get only the center of that rescaled
             transforms.ToTensor(),
             normalize,
-        ]),data_path=opts.data_path,sem_reg=opts.semantic_reg,partition='val'),
+        ]),data_path=opts.data_path,sem_reg=opts.semantic_reg,partition='val', use_10_classes=(opts.numClasses == 10)),
         batch_size=opts.batch_size, shuffle=False,
         num_workers=opts.workers, pin_memory=True)
     print('Validation loader prepared.')
