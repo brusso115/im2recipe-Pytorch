@@ -1,3 +1,4 @@
+import os
 import time
 import torch
 import torch.nn as nn
@@ -147,6 +148,8 @@ def test(test_loader, model, criterion):
     else:
         print('* Test loss {losses.avg:.4f}'.format(losses=cos_losses))
 
+    if not os.path.exists(opts.path_results):
+        os.makedirs(opts.path_results)
     with open(opts.path_results+'img_embeds.pkl', 'wb') as f:
         pickle.dump(data0, f)
     with open(opts.path_results+'rec_embeds.pkl', 'wb') as f:
