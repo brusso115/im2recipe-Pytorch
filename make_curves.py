@@ -53,7 +53,7 @@ def make_curves(learning_curves_file: str, output_dir='plots/', title=None):
 
 
 if __name__ == '__main__':
-    filepath = 'learning_curves/curves_12_09_02_18_49.json'
-    make_curve(filepath, 'cos_loss', output_dir='plots/wee')
-    make_curves(filepath, output_dir='plots/wee', title='my_experiment')
+    filepath = 'learning_curves/curves_12_11_17_07_11.json'
+    make_curve(filepath, 'cos_loss', output_dir='plots/10class')
+    make_curves(filepath, output_dir='plots/10class', title='text transformer 10 class data')
     

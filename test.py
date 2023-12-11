@@ -137,7 +137,7 @@ def test(test_loader, model, criterion):
             data1 = np.concatenate((data1,output[1].data.cpu().numpy()),axis=0)
             data2 = np.concatenate((data2,target[-2]),axis=0)
             data3 = np.concatenate((data3,target[-1]),axis=0)
-
+        
         if i == 100 and opts.numClasses != 10:
             break
 

@@ -274,7 +274,7 @@ def train(train_loader, model, criterion, optimizer, epoch, pbar):
             break
 
     if opts.semantic_reg:
-        with open('one_percent_output2','a') as f:
+        with open('one_percent_output3','a') as f:
              f.write('\nEpoch: {0}\t'
                   'cos loss {cos_loss.val:.4f} ({cos_loss.avg:.4f})\t'
                   'img Loss {img_loss.val:.4f} ({img_loss.avg:.4f})\t'
@@ -300,7 +300,7 @@ def train(train_loader, model, criterion, optimizer, epoch, pbar):
             'combined_loss': (combined_losses.avg).item(),
         }
     else:
-        with open('one_percent_output2','a') as f:
+        with open('one_percent_output3','a') as f:
             f.write('\nEpoch: {0}\t'
                     'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
                     'vision ({visionLR}) - recipe ({recipeLR})\t'.format(
@@ -355,7 +355,7 @@ def validate(val_loader, model, criterion):
         if i == opts.batch_num:
             break
     medR, recall = rank(opts, data0, data1, data2)
-    with open('one_percent_output2','a') as f:
+    with open('one_percent_output3','a') as f:
         f.write('\n* Val medR {medR:.4f}\t' 'Recall {recall}'.format(medR=medR, recall=recall))
 
     print('* Val medR {medR:.4f}\t'

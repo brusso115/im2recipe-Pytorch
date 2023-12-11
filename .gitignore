@@ -1,2 +1,8 @@
 *.pyc
 snapshots/
+learning_curves/
+plots/
+snapshots_10class/
+one_percent_output
+one_percent_output2
+one_percent_output3
