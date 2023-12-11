@@ -1,0 +1,82 @@
+[
+    {
+        "epoch": 0,
+        "cos_loss": 0.18248581886291504,
+        "img_loss": 6.858767986297607,
+        "rec_loss": 6.87037992477417,
+        "combined_loss": 0.31612762808799744,
+        "val_median_recall": null
+    },
+    {
+        "epoch": 1,
+        "cos_loss": 0.18719887733459473,
+        "img_loss": 6.732231616973877,
+        "rec_loss": 6.770503997802734,
+        "combined_loss": 0.31848233938217163,
+        "val_median_recall": 275.8
+    },
+    {
+        "epoch": 2,
+        "cos_loss": 0.1828424632549286,
+        "img_loss": 6.659063339233398,
+        "rec_loss": 6.6928510665893555,
+        "combined_loss": 0.31270480155944824,
+        "val_median_recall": 235.75
+    },
+    {
+        "epoch": 3,
+        "cos_loss": 0.18158333003520966,
+        "img_loss": 6.597397804260254,
+        "rec_loss": 6.624080657958984,
+        "combined_loss": 0.3101665675640106,
+        "val_median_recall": 233.4
+    },
+    {
+        "epoch": 4,
+        "cos_loss": 0.18782302737236023,
+        "img_loss": 6.533840656280518,
+        "rec_loss": 6.575497150421143,
+        "combined_loss": 0.3151598274707794,
+        "val_median_recall": 208.45
+    },
+    {
+        "epoch": 5,
+        "cos_loss": 0.19180817902088165,
+        "img_loss": 6.48645544052124,
+        "rec_loss": 6.5161452293396,
+        "combined_loss": 0.3179980516433716,
+        "val_median_recall": 191.0
+    },
+    {
+        "epoch": 6,
+        "cos_loss": 0.18062038719654083,
+        "img_loss": 6.43575382232666,
+        "rec_loss": 6.475826263427734,
+        "combined_loss": 0.30612364411354065,
+        "val_median_recall": 175.95
+    },
+    {
+        "epoch": 7,
+        "cos_loss": 0.18589285016059875,
+        "img_loss": 6.429333686828613,
+        "rec_loss": 6.410734176635742,
+        "combined_loss": 0.31057578325271606,
+        "val_median_recall": 164.2
+    },
+    {
+        "epoch": 8,
+        "cos_loss": 0.1743258237838745,
+        "img_loss": 6.373007774353027,
+        "rec_loss": 6.396407127380371,
+        "combined_loss": 0.29853343963623047,
+        "val_median_recall": 175.4
+    },
+    {
+        "epoch": 9,
+        "cos_loss": 0.1789693683385849,
+        "img_loss": 6.4129157066345215,
+        "rec_loss": 6.362118721008301,
+        "combined_loss": 0.30314022302627563,
+        "val_median_recall": 212.5
+    }
+]
