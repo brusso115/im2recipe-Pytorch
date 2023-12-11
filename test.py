@@ -1,3 +1,4 @@
+import os
 import time
 import torch
 import torch.nn as nn
@@ -70,7 +71,7 @@ def main():
             transforms.CenterCrop(224), # we get only the center of that rescaled
             transforms.ToTensor(),
             normalize,
-        ]),data_path=opts.data_path,sem_reg=opts.semantic_reg,partition='test'),
+        ]),data_path=opts.data_path,sem_reg=opts.semantic_reg,partition='test', use_10_classes=(opts.numClasses == 10)),
         batch_size=opts.batch_size, shuffle=False,
         num_workers=opts.workers, pin_memory=True)
     print('Test loader prepared.')
@@ -137,7 +138,7 @@ def test(test_loader, model, criterion):
             data2 = np.concatenate((data2,target[-2]),axis=0)
             data3 = np.concatenate((data3,target[-1]),axis=0)
 
-        if i == 100:
+        if i == 100 and opts.numClasses != 10:
             break
 
     if opts.semantic_reg:
@@ -147,6 +148,8 @@ def test(test_loader, model, criterion):
     else:
         print('* Test loss {losses.avg:.4f}'.format(losses=cos_losses))
 
+    if not os.path.exists(opts.path_results):
+        os.makedirs(opts.path_results)
     with open(opts.path_results+'img_embeds.pkl', 'wb') as f:
         pickle.dump(data0, f)
     with open(opts.path_results+'rec_embeds.pkl', 'wb') as f:

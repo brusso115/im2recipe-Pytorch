@@ -102,10 +102,18 @@ def main():
             transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
             normalize,
-        ]),data_path=opts.data_path,partition='train',sem_reg=opts.semantic_reg),
+        ]),data_path=opts.data_path,partition='train',sem_reg=opts.semantic_reg, use_10_classes=(opts.numClasses == 10)),
         batch_size=opts.batch_size, shuffle=True,
         num_workers=opts.workers, pin_memory=True)
     print('Training loader prepared.')
+
+
+    # This is used for debugging (Porter)
+    # single_batch = next(iter(train_loader))
+    # def single_batch_train_loader(single_batch):
+    #     while True:
+    #         yield single_batch
+    # train_loader = single_batch_train_loader(single_batch)
 
     # preparing validation loader 
     val_loader = torch.utils.data.DataLoader(
@@ -115,7 +123,7 @@ def main():
             transforms.CenterCrop(224), # we get only the center of that rescaled
             transforms.ToTensor(),
             normalize,
-        ]),data_path=opts.data_path,sem_reg=opts.semantic_reg,partition='val'),
+        ]),data_path=opts.data_path,sem_reg=opts.semantic_reg,partition='val', use_10_classes=(opts.numClasses == 10)),
         batch_size=opts.batch_size, shuffle=False,
         num_workers=opts.workers, pin_memory=True)
     print('Validation loader prepared.')
@@ -123,6 +131,7 @@ def main():
     # Create learning_curves dir
     timestamp = time.strftime("%m_%d_%H_%M_%S", time.gmtime())
     learning_curves_file = os.path.join(opts.learning_curves_dir, f'curves_{timestamp}.json')
+    os.makedirs(opts.learning_curves_dir, exist_ok=True)
     with open(learning_curves_file, 'w') as f:
         json.dump([], f)
 
@@ -148,6 +157,7 @@ def main():
                 valtrack = 0
             if valtrack >= opts.patience:
                 # we switch modalities
+                print(f"Switching modalities. freeVision {opts.freeVision} -> {opts.freeRecipe}")
                 opts.freeVision = opts.freeRecipe; opts.freeRecipe = not(opts.freeVision)
                 # change the learning rate accordingly
                 adjust_learning_rate(optimizer, epoch, opts) 
@@ -258,7 +268,7 @@ def train(train_loader, model, criterion, optimizer, epoch, pbar):
         end = time.time()
 
         pbar.update(1)
-        pbar.set_description(f'Epoch: {epoch} | Batch: {i}/{opts.batch_num}')
+        pbar.set_description(f'Epoch: {epoch} | Batch: {i}/{opts.batch_num} | freeVision {opts.freeVision} | freeRecipe {opts.freeRecipe}')
 
         if i == opts.batch_num:
             break
