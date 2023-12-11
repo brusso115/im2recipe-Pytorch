@@ -92,13 +92,34 @@ class ingRNN(nn.Module):
         output = output.view(output.size(0),output.size(1)*output.size(2))
 
         return output
+    
+
+class CustomViT(nn.Module):
+    def __init__(self, weights='DEFAULT'):
+        super(CustomViT, self).__init__()
+        self.vit = models.vit_b_16(weights=weights)
+    
+    def forward(self, img):
+        feats = self.vit._process_input(img)
+
+        # Expand the class token to the full batch
+        batch_class_token = self.vit.class_token.expand(img.shape[0], -1, -1)
+        feats = torch.cat([batch_class_token, feats], dim=1)
+
+        feats = self.vit.encoder(feats)
+
+        # We're only interested in the representation of the classifier token that we appended at position 0
+        feats = feats[:, 0]
+
+        return feats
+    
 
 # Im2recipe model
 class im2recipe(nn.Module):
     def __init__(self):
         super(im2recipe, self).__init__()
         if opts.preModel=='resNet50':
-        
+            print('using resNet50')
             resnet = models.resnet50(pretrained=True)
             modules = list(resnet.children())[:-1]  # we do not use the last fc layer.
             self.visionMLP = nn.Sequential(*modules)
@@ -108,13 +129,22 @@ class im2recipe(nn.Module):
                 nn.Tanh(),
             )
             
-            self.recipe_embedding = nn.Sequential(
-                nn.Linear(opts.irnnDim*2 + opts.srnnDim, opts.embDim, opts.embDim),
+        elif opts.preModel=='ViT':
+            print('using ViT')
+            self.visionMLP = CustomViT()
+
+            imfeatDim = 768
+            self.visual_embedding = nn.Sequential(
+                nn.Linear(imfeatDim, opts.embDim),
                 nn.Tanh(),
             )
-
         else:
-            raise Exception('Only resNet50 model is implemented.') 
+            raise Exception('Only resNet50 and ViT model is implemented.') 
+
+        self.recipe_embedding = nn.Sequential(
+            nn.Linear(opts.irnnDim*2 + opts.srnnDim, opts.embDim, opts.embDim),
+            nn.Tanh(),
+        )
 
         self.stRNN_     = stRNN()
         self.ingRNN_    = ingRNN()
