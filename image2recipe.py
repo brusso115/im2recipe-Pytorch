@@ -153,7 +153,7 @@ if __name__ == '__main__':
     img_path2 = 'data/images/test/6/7/d/7/67d74a4e14.jpg'
     img_path3 = 'data/images/test/4/0/0/6/4006f04a66.jpg' 
 
-    selected_img = img_path3
+    selected_img = img_path1
 
     model_name = 'default_model'
     img_name = os.path.basename(selected_img).split('.')[0]
