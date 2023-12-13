@@ -120,12 +120,19 @@ def main(im_path, save_path):
     print("Loading results from {}".format(opts.path_results))
     with open(os.path.join(opts.path_results,'rec_embeds.pkl'),'rb') as f:
         instr_vecs = pickle.load(f)
+
+    with open(os.path.join(opts.path_results,'rec_ids.pkl'), 'rb') as f:
+        rec_ids = pickle.load(f)
+
+    with open(os.path.join(opts.path_results,'img_ids.pkl'), 'rb') as f:
+        img_ids = pickle.load(f)
         
     closest_idx = find_closest_idx(visual_emb, instr_vecs)
     x, y = test_dataset[closest_idx]
+    print(closest_idx, x, rec_ids[closest_idx], img_ids[closest_idx])
     closest_img_tens = x[0]
     closest_img = tensor_to_image(closest_img_tens)
-    closest_ingredients_num = x[3]
+    closest_ingredients_num = x[2]
     closest_ingredients_str = convert_ingredients_to_string(closest_ingredients_num)
 
     # Save images
@@ -142,13 +149,13 @@ def main(im_path, save_path):
 
 
 if __name__ == '__main__':
-    img_path1 = 'data/images/val/0/0/0/2/0002694171.jpg' # Salmon with tomatoes?
-    img_path2 = 'data/images/val/0/0/0/3/0003f7346e.jpg' # Cinnamon roll
-    img_path3 = 'data/images/val/0/0/1/8/0018e60166.jpg' # Ham cheese avocado sandwich with soup
+    img_path1 = 'data/images/test/0/b/7/c/0b7c5110ed.jpg'
+    img_path2 = 'data/images/test/6/7/d/7/67d74a4e14.jpg'
+    img_path3 = 'data/images/test/4/0/0/6/4006f04a66.jpg' 
 
-    selected_img = img_path2
+    selected_img = img_path3
 
-    model_name = 'my_model'
+    model_name = 'default_model'
     img_name = os.path.basename(selected_img).split('.')[0]
     save_path = os.path.join('retrieval_results', model_name, img_name)
 
